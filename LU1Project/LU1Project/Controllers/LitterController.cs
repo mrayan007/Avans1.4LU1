@@ -1,4 +1,5 @@
 using LU1Project.Models;
+using LU1Project.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LU1Project.Controllers
@@ -7,6 +8,12 @@ namespace LU1Project.Controllers
     [Route("[controller]")]
     public class LitterController : ControllerBase
     {
+        private readonly LitterDbContext _context;
+        public LitterController(LitterDbContext context)
+        {
+            _context = context;
+        }
+
         private static readonly string[] SoortenAfval = new[]
         {
             "Cola", "Water", "Fles", "Blik", "Sigaret"
@@ -33,13 +40,13 @@ namespace LU1Project.Controllers
         public Litter Post([FromBody] Litter litter)
         {
             litter.Id = Random.Shared.Next(0, 15);
-            litter.DateTime = DateTime.UtcNow;
+            litter.ReportDate = DateTime.UtcNow;
 
             Console.WriteLine($"Received Litter:\n" +
                 $"Id: {litter.Id}\n" +
                 $"Location: {litter.Location}\n" +
                 $"Description: {litter.Description}\n" +
-                $"DateTime: {litter.DateTime}\n" +
+                $"DateTime: {litter.ReportDate}\n" +
                 $"Color: {litter.Color}");
 
             return litter;
@@ -53,7 +60,7 @@ namespace LU1Project.Controllers
                 Id = Random.Shared.Next(0, 15),
                 Location = Locations[Random.Shared.Next(Locations.Length)],
                 Description = SoortenAfval[Random.Shared.Next(SoortenAfval.Length)],
-                DateTime = DateTime.Now.AddDays(1),
+                ReportDate = DateTime.Now.AddDays(1),
                 Color = Colors[Random.Shared.Next(Colors.Length)]
             };
         }

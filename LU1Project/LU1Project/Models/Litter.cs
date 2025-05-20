@@ -12,7 +12,7 @@ namespace LU1Project.Models
 
         public string? Description { get; set; }
 
-        public DateTime DateTime { get; set; }
+        public DateTime ReportDate { get; set; }
 
         public string? Color { get; set; }
     }
