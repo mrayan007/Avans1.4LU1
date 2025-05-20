@@ -17,6 +17,11 @@ namespace LU1Project.Controllers
             "Breda", "Roosendaal", "Etten-Leur", "Tilburg", "Eindhoven"
         };
 
+        private static readonly string[] Colors = new[]
+        {
+            "Red", "Blue", "Yellow", "White", "Black"
+        };
+
         private readonly ILogger<LitterController> _logger;
 
         public LitterController(ILogger<LitterController> logger)
@@ -24,7 +29,21 @@ namespace LU1Project.Controllers
             _logger = logger;
         }
 
-        // POST here.
+        [HttpPost(Name = "PostLitter")]
+        public Litter Post([FromBody] Litter litter)
+        {
+            litter.Id = Random.Shared.Next(0, 15);
+            litter.DateTime = DateTime.UtcNow;
+
+            Console.WriteLine($"Received Litter:\n" +
+                $"Id: {litter.Id}\n" +
+                $"Location: {litter.Location}\n" +
+                $"Description: {litter.Description}\n" +
+                $"DateTime: {litter.DateTime}\n" +
+                $"Color: {litter.Color}");
+
+            return litter;
+        }
 
         [HttpGet(Name = "GetLitter")]
         public Litter Get()
@@ -34,7 +53,8 @@ namespace LU1Project.Controllers
                 Id = Random.Shared.Next(0, 15),
                 Location = Locations[Random.Shared.Next(Locations.Length)],
                 Description = SoortenAfval[Random.Shared.Next(SoortenAfval.Length)],
-                DateTime = DateTime.Now.AddDays(1)
+                DateTime = DateTime.Now.AddDays(1),
+                Color = Colors[Random.Shared.Next(Colors.Length)]
             };
         }
     }
