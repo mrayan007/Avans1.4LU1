@@ -1,6 +1,7 @@
 using LU1Project.Models;
 using LU1Project.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace LU1Project.Controllers
 {
@@ -9,9 +10,11 @@ namespace LU1Project.Controllers
     public class LitterController : ControllerBase
     {
         private readonly LitterDbContext _context;
-        public LitterController(LitterDbContext context)
+        private readonly ILogger<LitterController> _logger;
+        public LitterController(LitterDbContext context, ILogger<LitterController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         private static readonly string[] SoortenAfval = new[]
@@ -29,40 +32,51 @@ namespace LU1Project.Controllers
             "Red", "Blue", "Yellow", "White", "Black"
         };
 
-        private readonly ILogger<LitterController> _logger;
+        //[HttpPost(Name = "PostLitter")]
+        //public Litter Post([FromBody] Litter litter)
+        //{
+        //    litter.Id = Random.Shared.Next(0, 15);
+        //    litter.ReportDate = DateTime.UtcNow;
 
-        public LitterController(ILogger<LitterController> logger)
-        {
-            _logger = logger;
-        }
+        //    Console.WriteLine($"Received Litter:\n" +
+        //        $"Id: {litter.Id}\n" +
+        //        $"Location: {litter.Location}\n" +
+        //        $"Description: {litter.Description}\n" +
+        //        $"DateTime: {litter.ReportDate}\n" +
+        //        $"Color: {litter.Color}");
+
+        //    return litter;
+        //}
 
         [HttpPost(Name = "PostLitter")]
-        public Litter Post([FromBody] Litter litter)
+        public async Task<IActionResult> Post([FromBody] Litter litter)
         {
-            litter.Id = Random.Shared.Next(0, 15);
             litter.ReportDate = DateTime.UtcNow;
 
-            Console.WriteLine($"Received Litter:\n" +
-                $"Id: {litter.Id}\n" +
-                $"Location: {litter.Location}\n" +
-                $"Description: {litter.Description}\n" +
-                $"DateTime: {litter.ReportDate}\n" +
-                $"Color: {litter.Color}");
+            _context.Litter.Add(litter);
+            await _context.SaveChangesAsync();
 
-            return litter;
+            return CreatedAtAction(nameof(Get), new { id = litter.Id }, litter);
         }
 
-        [HttpGet(Name = "GetLitter")]
-        public Litter Get()
+        //[HttpGet(Name = "GetLitter")]
+        //public Litter Get()
+        //{
+        //    return new Litter
+        //    {
+        //        Id = Random.Shared.Next(0, 15),
+        //        Location = Locations[Random.Shared.Next(Locations.Length)],
+        //        Description = SoortenAfval[Random.Shared.Next(SoortenAfval.Length)],
+        //        ReportDate = DateTime.Now.AddDays(1),
+        //        Color = Colors[Random.Shared.Next(Colors.Length)]
+        //    };
+        //}
+
+        [HttpGet(Name = "GetAllLitter")]
+        public async Task<ActionResult<IEnumerable<Litter>>> Get()
         {
-            return new Litter
-            {
-                Id = Random.Shared.Next(0, 15),
-                Location = Locations[Random.Shared.Next(Locations.Length)],
-                Description = SoortenAfval[Random.Shared.Next(SoortenAfval.Length)],
-                ReportDate = DateTime.Now.AddDays(1),
-                Color = Colors[Random.Shared.Next(Colors.Length)]
-            };
+            var litterReports = await _context.Litter.ToListAsync();
+            return Ok(litterReports);
         }
     }
 }
